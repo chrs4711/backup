@@ -13,13 +13,13 @@ def is_mounted(path):
 
 def mount(path):
     try:
-        print(f"Mounting {path}...")
+        print(f"* Mounting {path}...")
         result = subprocess.run(["mount", path])
     except Exception as e:
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
 
-def perform_backup(path, repo_basepath, name, pwfile_location):
+def perform_backup(name, path, repo_basepath, pwfile_location):
 
     cmd = [
             "restic",
@@ -31,8 +31,8 @@ def perform_backup(path, repo_basepath, name, pwfile_location):
             path,
     ]
     
-    print(f"Backing up {name}...")
-    print(f'Issuing command: `{" ".join(cmd)}`')
+    print(f"* Backing up {name}...")
+    print(f'* Issuing command: `{" ".join(cmd)}`')
 
     try:
         result = subprocess.run(cmd)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     repo_basepath = config['DEFAULT']['repo_basepath']
     pwfile_location = config['DEFAULT']['pwfile_location']
-    print(f"basepath: {repo_basepath}, pw: {pwfile_location}")
+    print(f"* Got configuration: basepath: {repo_basepath}, pw: {pwfile_location}")
 
     # if not is_mounted(repo_basepath):
     #    mount(repo_basepath)
@@ -74,9 +74,4 @@ if __name__ == "__main__":
         path = config[section]["path"]
         name = config[section]["name"]
 
-        print(f'backing up: {name} in {path} to {repo_basepath}/{name}')
-        perform_backup(path, repo_basepath, name, pwfile_location)
-
-
-    # perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
-    # perform_backup("/mnt/foobar", "foobar")
+        perform_backup(name, path, repo_basepath, pwfile_location)
