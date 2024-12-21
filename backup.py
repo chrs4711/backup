@@ -5,6 +5,7 @@ import configparser
 
 REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
+DRY_RUN = False
 
 def is_mounted(path):
     try:
@@ -37,12 +38,26 @@ def perform_backup(name, path):
     print(f"* Backing up {name}...")
     print(f'* Issuing command: `{" ".join(cmd)}`')
 
-    # try:
-    #     result = subprocess.run(cmd)
-    # except Exception as e:
-    #     print(f"Error performing backup for {name}: {e}")
+    if DRY_RUN:
+        print("* DRY_RUN activated, doing nothing.")
+        return
 
-def read_config(config_path):
+    try:
+        result = subprocess.run(cmd)
+    except Exception as e:
+        print(f"Error performing backup for {name}: {e}")
+
+def set_me_up():
+    """
+    Checks arguments, processes the config file and sets global parameters/switches.
+    Returns the config object
+    """
+
+    if len(sys.argv) < 2:
+        print("Usage: script <config file> [--dry-run]")
+        sys.exit(1)
+
+    config_path = sys.argv[1]
 
     if not os.path.exists(config_path):
         print(f"Error: Config file `{config_path}` not found.")
@@ -54,20 +69,20 @@ def read_config(config_path):
     # set some global stuff
     global REPO_BASEPATH
     global PWFILE_LOCATION
+    global DRY_RUN
+
     REPO_BASEPATH = config['DEFAULT']['repo_basepath']
     PWFILE_LOCATION = config['DEFAULT']['pwfile_location']
+
+    if "--dry-run" in sys.argv:
+        DRY_RUN = True
 
     return config
 
 
 if __name__ == "__main__":
 
-    if len(sys.argv) < 2:
-        print("Usage: script <config file>")
-        sys.exit(1)
-
-    config_file_path = sys.argv[1]
-    config = read_config(config_file_path)
+    config = set_me_up()
 
     print(f"* Got configuration: basepath: {REPO_BASEPATH}, pw: {PWFILE_LOCATION}")
 
