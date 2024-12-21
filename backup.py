@@ -1,9 +1,10 @@
 import os
 import sys
 import subprocess
+import configparser
 
 PWFILE_LOCATION="/etc/restic"
- 
+
 
 def is_mounted(path):
     try:
@@ -41,6 +42,18 @@ def perform_backup(path, repo_basepath, name):
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
 
+def read_config(config_path):
+
+    if not os.path.exists(config_path):
+        print(f"Error: Config file `{config_path}` not found.")
+        sys.exit(1)
+
+    config = configparser.ConfigParser()
+    config.read(config_path)
+
+    return config
+
+
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
@@ -50,8 +63,16 @@ if __name__ == "__main__":
     repo_basepath = sys.argv[1]
     print(f"repo basepath is: `{repo_basepath}`")
 
+    config = read_config("config.cfg")
+
+    for section in config.sections():
+        path = config[section]["path"]
+        name = config[section]["name"]
+
+        print(f'backing up: {name} in {path} to {repo_basepath}/{name}')
+
     # if not is_mounted(repo_basepath):
     #    mount(repo_basepath)
 
-    perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
+    # perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
     # perform_backup("/mnt/foobar", "foobar")
