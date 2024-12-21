@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import configparser
+import urllib.request
 
 REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
@@ -23,7 +24,7 @@ def mount(path):
 
     try:
         print(f"* Mounting {path}...")
-        result = subprocess.run(["mount", path])
+        result = subprocess.run(["mount", path], check=True)
     except Exception as e:
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
@@ -48,9 +49,10 @@ def perform_backup(name, path):
         return
 
     try:
-        result = subprocess.run(cmd)
+        result = subprocess.run(cmd, check=True)
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
+        sys.exit(1)
 
 def set_me_up():
     """
@@ -89,6 +91,15 @@ def set_me_up():
 def should_mount(config):
     return config['DEFAULT']['mount_repo_basepath'] == "True"
 
+def report_success(url):
+    if DRY_RUN:
+        print(f"* DRY_RUN activated, not reporting to {url}")
+        return
+
+    print("reporting success")
+    urllib.request.urlopen(url)
+
+
 
 if __name__ == "__main__":
 
@@ -105,3 +116,5 @@ if __name__ == "__main__":
         name = config[section]["name"]
 
         perform_backup(name, path)
+
+    report_success(config['DEFAULT']['heartbeat_url'])
