@@ -7,6 +7,7 @@ import urllib.request
 REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
 DRY_RUN = False
+RESTIC_BINARY = "/usr/local/bin/restic"
 
 def is_mounted(path):
     try:
@@ -32,7 +33,7 @@ def mount(path):
 def perform_backup(name, path):
 
     cmd = [
-            "restic",
+            RESTIC_BINARY,
             "-r", f"{REPO_BASEPATH}/{name}", # repository
             "backup",
             "--tag", name,
