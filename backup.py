@@ -48,10 +48,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     repo_basepath = sys.argv[1]
-    print(f"repo location: {repo_basepath}")
+    print(f"repo basepath is: `{repo_basepath}`")
 
-    # if not is_mounted(BACKUP_LOCATION):
-    #    mount(BACKUP_LOCATION)
+    # if not is_mounted(repo_basepath):
+    #    mount(repo_basepath)
 
     perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
     # perform_backup("/mnt/foobar", "foobar")
