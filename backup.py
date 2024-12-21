@@ -2,7 +2,6 @@ import os
 import sys
 import subprocess
 
-BACKUPREPO_LOCATION="/mnt/nextcloud-backup"
 PWFILE_LOCATION="/etc/restic"
  
 
@@ -20,13 +19,13 @@ def mount(path):
         result = subprocess.run(["mount", path])
     except Exception as e:
         print(f"Error mounting '{path}': {e}")
-        sys.exit()
+        sys.exit(1)
 
-def perform_backup(path, name):
+def perform_backup(path, repo_basepath, name):
 
     cmd = [
             "restic",
-            "-r", f"{BACKUPREPO_LOCATION}/{name}", # repository
+            "-r", f"{repo_basepath}/{name}", # repository
             "backup",
             "--tag", name,
             "-p", f"{PWFILE_LOCATION}/{name}.txt", # password file
@@ -44,8 +43,15 @@ def perform_backup(path, name):
 
 if __name__ == "__main__":
 
+    if len(sys.argv) < 2:
+        print("Usage: script <repo basepath>")
+        sys.exit(1)
+
+    repo_basepath = sys.argv[1]
+    print(f"repo location: {repo_basepath}")
+
     # if not is_mounted(BACKUP_LOCATION):
     #    mount(BACKUP_LOCATION)
 
-    perform_backup("/mnt/storage/share/Documents", "documents")
+    perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
     # perform_backup("/mnt/foobar", "foobar")
