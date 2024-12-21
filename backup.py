@@ -5,9 +5,6 @@ import subprocess
 BACKUPREPO_LOCATION="/mnt/nextcloud-backup"
 PWFILE_LOCATION="/etc/restic"
  
-# export RESTIC_REPOSITORY=/mnt/nextcloud-backup/documents
-# export RESTIC_PASSWORD=
-# export RESTIC_TEMP_DIR=/mnt/storage/tmp
 
 def is_mounted(path):
     try:
@@ -45,8 +42,6 @@ def perform_backup(path, name):
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
     
-
-# print(f"Checking '{BACKUP_LOCATION}'")
 
 # if not is_mounted(BACKUP_LOCATION):
 #    mount(BACKUP_LOCATION)
