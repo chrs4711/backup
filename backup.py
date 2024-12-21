@@ -3,6 +3,9 @@ import sys
 import subprocess
 import configparser
 
+REPO_BASEPATH = ""
+PWFILE_LOCATION = ""
+
 def is_mounted(path):
     try:
         result = subprocess.run(["mountpoint", "-q", path])
@@ -19,14 +22,14 @@ def mount(path):
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
 
-def perform_backup(name, path, repo_basepath, pwfile_location):
+def perform_backup(name, path):
 
     cmd = [
             "restic",
-            "-r", f"{repo_basepath}/{name}", # repository
+            "-r", f"{REPO_BASEPATH}/{name}", # repository
             "backup",
             "--tag", name,
-            "-p", f"{pwfile_location}/{name}.txt", # password file
+            "-p", f"{PWFILE_LOCATION}/{name}.txt", # password file
             "--verbose",
             path,
     ]
@@ -34,10 +37,10 @@ def perform_backup(name, path, repo_basepath, pwfile_location):
     print(f"* Backing up {name}...")
     print(f'* Issuing command: `{" ".join(cmd)}`')
 
-    try:
-        result = subprocess.run(cmd)
-    except Exception as e:
-        print(f"Error performing backup for {name}: {e}")
+    # try:
+    #     result = subprocess.run(cmd)
+    # except Exception as e:
+    #     print(f"Error performing backup for {name}: {e}")
 
 def read_config(config_path):
 
@@ -47,6 +50,12 @@ def read_config(config_path):
 
     config = configparser.ConfigParser()
     config.read(config_path)
+
+    # set some global stuff
+    global REPO_BASEPATH
+    global PWFILE_LOCATION
+    REPO_BASEPATH = config['DEFAULT']['repo_basepath']
+    PWFILE_LOCATION = config['DEFAULT']['pwfile_location']
 
     return config
 
@@ -60,9 +69,7 @@ if __name__ == "__main__":
     config_file_path = sys.argv[1]
     config = read_config(config_file_path)
 
-    repo_basepath = config['DEFAULT']['repo_basepath']
-    pwfile_location = config['DEFAULT']['pwfile_location']
-    print(f"* Got configuration: basepath: {repo_basepath}, pw: {pwfile_location}")
+    print(f"* Got configuration: basepath: {REPO_BASEPATH}, pw: {PWFILE_LOCATION}")
 
     # if not is_mounted(repo_basepath):
     #    mount(repo_basepath)
@@ -74,4 +81,4 @@ if __name__ == "__main__":
         path = config[section]["path"]
         name = config[section]["name"]
 
-        perform_backup(name, path, repo_basepath, pwfile_location)
+        perform_backup(name, path)
