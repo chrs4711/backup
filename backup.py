@@ -9,6 +9,7 @@ PWFILE_LOCATION = ""
 DRY_RUN = False
 RESTIC_BINARY = "/usr/local/bin/restic"
 
+
 def is_mounted(path):
     try:
         result = subprocess.run(["mountpoint", "-q", path])
@@ -17,8 +18,8 @@ def is_mounted(path):
         print(f"Error checking '{path}': {e}")
         sys.exit()
 
-def mount(path):
 
+def mount(path):
     if DRY_RUN:
         print("* DRY_RUN activated. Not mounting anything.")
         return
@@ -30,18 +31,18 @@ def mount(path):
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
 
-def perform_backup(name, path):
 
+def perform_backup(name, path):
     cmd = [
-            RESTIC_BINARY,
-            "-r", f"{REPO_BASEPATH}/{name}", # repository
-            "backup",
-            "--tag", name,
-            "-p", f"{PWFILE_LOCATION}/{name}.txt", # password file
-            "--verbose",
-            path,
+        RESTIC_BINARY,
+        "-r", f"{REPO_BASEPATH}/{name}",  # repository
+        "backup",
+        "--tag", name,
+        "-p", f"{PWFILE_LOCATION}/{name}.txt",  # password file
+        "--verbose",
+        path,
     ]
-    
+
     print(f"* Backing up {name}...")
     print(f'* Issuing command: `{" ".join(cmd)}`')
 
@@ -54,6 +55,7 @@ def perform_backup(name, path):
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
         sys.exit(1)
+
 
 def set_me_up():
     """
@@ -89,8 +91,10 @@ def set_me_up():
 
     return config
 
+
 def should_mount(config):
     return config['DEFAULT']['mount_repo_basepath'] == "True"
+
 
 def report_success(url):
     if DRY_RUN:
@@ -99,7 +103,6 @@ def report_success(url):
 
     print("reporting success")
     urllib.request.urlopen(url)
-
 
 
 if __name__ == "__main__":
