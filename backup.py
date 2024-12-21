@@ -16,6 +16,10 @@ def is_mounted(path):
         sys.exit()
 
 def mount(path):
+
+    if DRY_RUN:
+        print("* DRY_RUN activated. Not mounting anything.")
+
     try:
         print(f"* Mounting {path}...")
         result = subprocess.run(["mount", path])
@@ -39,7 +43,7 @@ def perform_backup(name, path):
     print(f'* Issuing command: `{" ".join(cmd)}`')
 
     if DRY_RUN:
-        print("* DRY_RUN activated, doing nothing.")
+        print("* DRY_RUN activated, Not backing up anything.")
         return
 
     try:
@@ -79,6 +83,9 @@ def set_me_up():
 
     return config
 
+def should_mount(config):
+    return config['DEFAULT']['mount_repo_basepath']
+
 
 if __name__ == "__main__":
 
@@ -86,8 +93,8 @@ if __name__ == "__main__":
 
     print(f"* Got configuration: basepath: {REPO_BASEPATH}, pw: {PWFILE_LOCATION}")
 
-    # if not is_mounted(repo_basepath):
-    #    mount(repo_basepath)
+    if should_mount(config) and not is_mounted(REPO_BASEPATH):
+        mount(REPO_BASEPATH)
 
     for section in config.sections():
         if section == "DEFAULT":
