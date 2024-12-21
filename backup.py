@@ -3,9 +3,6 @@ import sys
 import subprocess
 import configparser
 
-PWFILE_LOCATION="/etc/restic"
-
-
 def is_mounted(path):
     try:
         result = subprocess.run(["mountpoint", "-q", path])
@@ -22,14 +19,14 @@ def mount(path):
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
 
-def perform_backup(path, repo_basepath, name):
+def perform_backup(path, repo_basepath, name, pwfile_location):
 
     cmd = [
             "restic",
             "-r", f"{repo_basepath}/{name}", # repository
             "backup",
             "--tag", name,
-            "-p", f"{PWFILE_LOCATION}/{name}.txt", # password file
+            "-p", f"{pwfile_location}/{name}.txt", # password file
             "--verbose",
             path,
     ]
@@ -57,22 +54,29 @@ def read_config(config_path):
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        print("Usage: script <repo basepath>")
+        print("Usage: script <config file>")
         sys.exit(1)
 
-    repo_basepath = sys.argv[1]
-    print(f"repo basepath is: `{repo_basepath}`")
+    config_file_path = sys.argv[1]
+    config = read_config(config_file_path)
 
-    config = read_config("config.cfg")
+    repo_basepath = config['DEFAULT']['repo_basepath']
+    pwfile_location = config['DEFAULT']['pwfile_location']
+    print(f"basepath: {repo_basepath}, pw: {pwfile_location}")
+
+    # if not is_mounted(repo_basepath):
+    #    mount(repo_basepath)
 
     for section in config.sections():
+        if section == "DEFAULT":
+            continue
+
         path = config[section]["path"]
         name = config[section]["name"]
 
         print(f'backing up: {name} in {path} to {repo_basepath}/{name}')
+        perform_backup(path, repo_basepath, name, pwfile_location)
 
-    # if not is_mounted(repo_basepath):
-    #    mount(repo_basepath)
 
     # perform_backup("/mnt/storage/share/Documents", repo_basepath, "documents")
     # perform_backup("/mnt/foobar", "foobar")
