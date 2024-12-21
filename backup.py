@@ -19,6 +19,7 @@ def mount(path):
 
     if DRY_RUN:
         print("* DRY_RUN activated. Not mounting anything.")
+        return
 
     try:
         print(f"* Mounting {path}...")
