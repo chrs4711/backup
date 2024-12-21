@@ -41,10 +41,11 @@ def perform_backup(path, name):
         result = subprocess.run(cmd)
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
-    
 
-# if not is_mounted(BACKUP_LOCATION):
-#    mount(BACKUP_LOCATION)
+if __name__ == "__main__":
 
-perform_backup("/mnt/storage/share/Documents", "documents")
-# perform_backup("/mnt/foobar", "foobar")
+    # if not is_mounted(BACKUP_LOCATION):
+    #    mount(BACKUP_LOCATION)
+
+    perform_backup("/mnt/storage/share/Documents", "documents")
+    # perform_backup("/mnt/foobar", "foobar")
