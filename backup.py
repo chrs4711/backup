@@ -81,17 +81,17 @@ def set_me_up():
     if "--dry-run" in sys.argv:
         DRY_RUN = True
 
+    # print(dict(config['DEFAULT']))
+
     return config
 
 def should_mount(config):
-    return config['DEFAULT']['mount_repo_basepath']
+    return config['DEFAULT']['mount_repo_basepath'] == "True"
 
 
 if __name__ == "__main__":
 
     config = set_me_up()
-
-    print(f"* Got configuration: basepath: {REPO_BASEPATH}, pw: {PWFILE_LOCATION}")
 
     if should_mount(config) and not is_mounted(REPO_BASEPATH):
         mount(REPO_BASEPATH)
