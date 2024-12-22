@@ -16,7 +16,7 @@ def is_mounted(path):
         return result.returncode == 0
     except Exception as e:
         print(f"Error checking '{path}': {e}")
-        sys.exit()
+        sys.exit(1)
 
 
 def mount(path):
