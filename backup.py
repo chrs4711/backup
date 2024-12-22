@@ -26,7 +26,7 @@ def mount(path):
 
     try:
         print(f"* Mounting {path}...")
-        result = subprocess.run(["mount", path], check=True)
+        subprocess.run(["mount", path], check=True)
     except Exception as e:
         print(f"Error mounting '{path}': {e}")
         sys.exit(1)
@@ -51,7 +51,7 @@ def perform_backup(name, path):
         return
 
     try:
-        result = subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True)
     except Exception as e:
         print(f"Error performing backup for {name}: {e}")
         sys.exit(1)
