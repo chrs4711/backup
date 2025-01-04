@@ -57,6 +57,29 @@ def perform_backup(name, path):
         sys.exit(1)
 
 
+def forget(name):
+    cmd = [
+        RESTIC_BINARY,
+        "-r", f"{REPO_BASEPATH}/{name}",  # repository
+        "-p", f"{PWFILE_LOCATION}/{name}.txt",  # password file
+        "forget",
+        "--keep-within-daily", "10y"  # --keep-within-daily 10y
+    ]
+
+    print(f"* Forgetting snapshots for {name}...")
+    print(f'* Issuing command: `{" ".join(cmd)}`')
+
+    if DRY_RUN:
+        print("* DRY_RUN activated, not forgetting anything")
+        return
+
+    try:
+        subprocess.run(cmd, check=True)
+    except Exception as e:
+        print(f"Error forgetting snapshots for {name}: {e}")
+        sys.exit(1)
+
+
 def set_me_up():
     """
     Checks arguments, processes the config file and sets global parameters/switches.
@@ -118,7 +141,9 @@ if __name__ == "__main__":
 
         path = config[section]["path"]
         name = config[section]["name"]
-
         perform_backup(name, path)
+
+        if config[section]["forget"] == "True":
+            forget(name)
 
     report_success(config['DEFAULT']['heartbeat_url'])
