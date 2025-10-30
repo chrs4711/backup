@@ -19,19 +19,6 @@ def is_mounted(path):
         sys.exit(1)
 
 
-def mount(path):
-    if DRY_RUN:
-        print("* DRY_RUN activated. Not mounting anything.")
-        return
-
-    try:
-        print(f"* Mounting {path}...")
-        subprocess.run(["mount", path], check=True)
-    except Exception as e:
-        print(f"Error mounting '{path}': {e}")
-        sys.exit(1)
-
-
 def perform_backup(name, path):
     cmd = [
         RESTIC_BINARY,
@@ -128,6 +115,31 @@ def report_success(url):
     urllib.request.urlopen(url)
 
 
+def mount(path):
+    print(f"* Mounting {path}...")
+
+    if DRY_RUN:
+        print("* DRY_RUN activated. Not mounting anything.")
+        return
+
+    try:
+        subprocess.run(["mount", path], check=True)
+    except Exception as e:
+        print(f"Error mounting '{path}': {e}")
+        sys.exit(1)
+
+
+def unmount(path):
+    if DRY_RUN:
+        print(f"* DRY_RUN activated, not unmounting anything")
+        return
+
+    try:
+        subprocess.run(["umount", path], check=True)
+    except Exception as e:
+        print(f"Error unmounting '{path}")
+
+
 if __name__ == "__main__":
 
     config = set_me_up()
@@ -145,5 +157,8 @@ if __name__ == "__main__":
 
         if config[section]["forget"] == "True":
             forget(name)
+
+    if is_mounted(REPO_BASEPATH):
+        unmount(REPO_BASEPATH)
 
     report_success(config['DEFAULT']['heartbeat_url'])
