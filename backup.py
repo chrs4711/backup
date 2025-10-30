@@ -8,12 +8,16 @@ REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
 DRY_RUN = False
 RESTIC_BINARY = "/usr/bin/restic"
-VERION = "1.2.0"
+VERION = "1.2.1"
 
 
 def is_mounted(path):
-    returncode = run_or_die_trying(["mountpoint", "-q", path], "Checking mount")
-    return returncode == 0
+    try:
+        result = subprocess.run(["mountpoint", "-q", path])
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Error checking '{path}': {e}")
+        sys.exit(1)
 
 
 def perform_backup(name, path):
@@ -101,13 +105,10 @@ def run_or_die_trying(cmd, desc):
     print(f'* [ {" ".join(cmd)} ]')
 
     if DRY_RUN:
-        return 0
+        return
 
     try:
-        result = subprocess.run(cmd, check=True)
-
-        ## supply the return code in case somebody wants it
-        return result.returncode
+        subprocess.run(cmd, check=True)
     except Exception as e:
         print(f" ERROR {desc}: {e}")
         sys.exit(1)
