@@ -12,12 +12,8 @@ VERION = "1.1.0"
 
 
 def is_mounted(path):
-    try:
-        result = subprocess.run(["mountpoint", "-q", path])
-        return result.returncode == 0
-    except Exception as e:
-        print(f"Error checking '{path}': {e}")
-        sys.exit(1)
+    returncode = run_or_die_trying(["mountpoint", "-q", path], "Checking mount")
+    return returncode == 0
 
 
 def perform_backup(name, path):
@@ -31,18 +27,7 @@ def perform_backup(name, path):
         path,
     ]
 
-    print(f"* Backing up {name}...")
-    print(f'* Issuing command: `{" ".join(cmd)}`')
-
-    if DRY_RUN:
-        print("* DRY_RUN activated, Not backing up anything.")
-        return
-
-    try:
-        subprocess.run(cmd, check=True)
-    except Exception as e:
-        print(f"Error performing backup for {name}: {e}")
-        sys.exit(1)
+    run_or_die_trying(cmd, f"Backing up {name}")
 
 
 def forget(name):
@@ -54,19 +39,7 @@ def forget(name):
         "--keep-within-daily", "10y"  # --keep-within-daily 10y
     ]
 
-    print(f"* Forgetting snapshots for {name}...")
-    print(f'* Issuing command: `{" ".join(cmd)}`')
-
-    if DRY_RUN:
-        print("* DRY_RUN activated, not forgetting anything")
-        return
-
-    try:
-        subprocess.run(cmd, check=True)
-    except Exception as e:
-        print(f"Error forgetting snapshots for {name}: {e}")
-        sys.exit(1)
-
+    run_or_die_trying(cmd, f"Forgetting snapshots for {name}")
 
 def set_me_up():
     """
@@ -97,8 +70,7 @@ def set_me_up():
 
     if "--dry-run" in sys.argv:
         DRY_RUN = True
-
-    # print(dict(config['DEFAULT']))
+        print("!! Dry run activated !!")
 
     return config
 
@@ -117,28 +89,28 @@ def report_success(url):
 
 
 def mount(path):
-    print(f"* Mounting {path}...")
-
-    if DRY_RUN:
-        print("* DRY_RUN activated. Not mounting anything.")
-        return
-
-    try:
-        subprocess.run(["mount", path], check=True)
-    except Exception as e:
-        print(f"Error mounting '{path}': {e}")
-        sys.exit(1)
+    run_or_die_trying(["mount", path], f"Mounting {path}")
 
 
 def unmount(path):
+    run_or_die_trying(["umount", path], f"Umounting {path}")
+
+
+def run_or_die_trying(cmd, desc):
+    print(f"* {desc}...")
+    print(f'* [ {" ".join(cmd)} ]')
+
     if DRY_RUN:
-        print(f"* DRY_RUN activated, not unmounting anything")
-        return
+        return 0
 
     try:
-        subprocess.run(["umount", path], check=True)
+        result = subprocess.run(cmd, check=True)
+
+        ## supply the return code in case somebody wants it
+        return result.returncode
     except Exception as e:
-        print(f"Error unmounting '{path}")
+        print(f" ERROR {desc}: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
