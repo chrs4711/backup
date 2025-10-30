@@ -7,7 +7,7 @@ import urllib.request
 REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
 DRY_RUN = False
-RESTIC_BINARY = "/usr/local/bin/restic"
+RESTIC_BINARY = "/usr/bin/restic"
 
 
 def is_mounted(path):
