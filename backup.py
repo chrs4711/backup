@@ -8,6 +8,7 @@ REPO_BASEPATH = ""
 PWFILE_LOCATION = ""
 DRY_RUN = False
 RESTIC_BINARY = "/usr/bin/restic"
+VERION = "1.1.0"
 
 
 def is_mounted(path):
